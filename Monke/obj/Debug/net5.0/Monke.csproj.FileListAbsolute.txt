@@ -1,0 +1,15 @@
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/bin/Debug/net5.0/Monke.deps.json
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/bin/Debug/net5.0/Monke.runtimeconfig.json
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/bin/Debug/net5.0/Monke.runtimeconfig.dev.json
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/bin/Debug/net5.0/Monke.dll
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/bin/Debug/net5.0/ref/Monke.dll
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/bin/Debug/net5.0/Monke.pdb
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/obj/Debug/net5.0/Monke.csproj.AssemblyReference.cache
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/obj/Debug/net5.0/Monke.GeneratedMSBuildEditorConfig.editorconfig
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/obj/Debug/net5.0/Monke.AssemblyInfoInputs.cache
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/obj/Debug/net5.0/Monke.AssemblyInfo.cs
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/obj/Debug/net5.0/Monke.csproj.CoreCompileInputs.cache
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/obj/Debug/net5.0/Monke.dll
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/obj/Debug/net5.0/ref/Monke.dll
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/obj/Debug/net5.0/Monke.pdb
+/Users/marcustornea/Desktop/Ateneo/EmpTech/Monke/Monke/obj/Debug/net5.0/Monke.genruntimeconfig.cache
