@@ -382,7 +382,7 @@ namespace Monke
             subject = subj;
             difficulty = diff;
             Random random = new Random();
-            int textIndex = random.Next(1, 3);
+            int textIndex = random.Next(1, 6);
             string[] tsvLines = System.IO.File.ReadAllLines("Dataset.tsv");
             for (int i = 1; i < tsvLines.Length; i++)
             {
