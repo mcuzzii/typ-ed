@@ -9,6 +9,7 @@ namespace Monke
         static void Main()
         {
             List<Game> games = new List<Game>();
+            Random random = new Random();
             bool quitGame = false;
             do
             {
@@ -132,7 +133,7 @@ namespace Monke
                                 Console.Clear();
                                 printCenter(gameHeader, artColor);
                                 Console.WriteLine();
-                                Game game = new Game(subject, difficulty);
+                                Game game = new Game(subject, difficulty, random);
                                 string text = game.text;
                                 string[] words = text.Split(' ');
                                 for (int i = 0; i < words.Length; i++) if (i < words.Length - 1) words[i] += " ";
@@ -377,11 +378,10 @@ namespace Monke
         public string[] choices = new string[4];
         public string quizAnswer;
         public int result;
-        public Game(string subj, string diff)
+        public Game(string subj, string diff, Random random)
         {
             subject = subj;
             difficulty = diff;
-            Random random = new Random();
             int textIndex = random.Next(1, 6);
             string[] tsvLines = System.IO.File.ReadAllLines("Dataset.tsv");
             for (int i = 1; i < tsvLines.Length; i++)
@@ -436,73 +436,42 @@ namespace Monke
                                                                                         ████░░░░░░████
                                                                                         ██████▓▓██  ";
         public static string phflag = @"                                              
-                                                                                          
-                                            ░░                                          
-                                                                                          
-                                ▓▓▒▒▒▒                                                
-                                ▓▓▓▓▒▒▓▓    ▓▓                                        
-                                ▒▒▒▒▒▒▓▓▒▒▓▓▓▓░░                                        
-                                ▒▒▒▒▒▒▓▓▓▓▓▓▓▓                                          
-                                ▓▓▓▓▓▓    ▓▓▓▓                                          
-                                ▒▒▓▓░░▒▒▒▒▓▓▓▓▒▒                                        
-                                ▓▓▓▓░░    ▓▓▓▓▓▓░░                                      
-                                ▓▓▒▒░░▒▒▒▒▓▓▓▓▓▓░░                                      
-                                ▓▓░░░░░░▓▓▓▓▓▓▓▓                                        
-                                ▒▒  ▓▓▓▓▓▓▓▓▒▒░░                                        
-                        ▓▓  ░░    ▓▓▓▓▓▓▓▓▒▒░░                                        
-                        ▓▓▓▓░░▓▓▓▓▒▒▒▒▓▓▒▒                                            
-                            ▒▒▓▓▓▓▓▓▒▒▒▒▒▒                                              
-                            ▒▒▒▒░░▒▒▒▒▒▒▒▒                                              
-                            ▒▒░░░░▒▒▒▒▒▒░░                                              
-                            ▒▒░░░░▒▒▒▒▒▒                                                
-                            ▒▒▒▒░░▒▒▒▒▒▒                                                
-                            ░░▒▒░░░░▒▒▒▒▒▒  ▒▒                                          
-                            ▒▒▒▒  ▒▒▒▒▒▒  ▒▒                                          
-                                ▒▒  ▒▒░░▒▒                                              
-                                ▒▒▒▒  ▒▒░░    ▒▒▒▒                                    
-                                ▒▒  ░░░░▒▒  ▒▒▒▒▒▒▒▒                                  
-                                    ▒▒▒▒▒▒  ▒▒▒▒▒▒▓▓▓▓  ▓▓▓▓  ▒▒▒▒                      
-                                    ▒▒      ▒▒▒▒  ▓▓▒▒▓▓    ▓▓▒▒                      
-                                ▒▒▒▒▒▒      ▒▒  ░░    ▓▓▓▓▓▓                            
-                                ▒▒▒▒▒▒░░              ▓▓▓▓░░                          
-                                ░░▒▒▒▒░░            ░░  ▓▓▒▒▒▒                        
-                                    ▒▒▒▒░░                  ▒▒▒▒                        
-                                    ▒▒▒▒▒▒                ▓▓░░                          
-                                    ▒▒▒▒                ▒▒      ▒▒░░░░▒▒                
-                            ▒▒            ░░░░░░░░░░    ▒▒▒▒▒▒    ▓▓▒▒▓▓▓▓              
-                            ░░                      ▒▒    ▒▒      ▓▓▓▓▓▓              
-                            ▒▒              ░░  ░░                  ▒▒▓▓▓▓              
-                                            ░░░░░░                ░░▓▓▓▓              
-                                            ░░▒▒▒▒▒▒          ▓▓  ▓▓▓▓▓▓▓▓            
-                    ░░            ░░▒▒░░▒▒░░▒▒▓▓▓▓▓▓          ░░▒▒▒▒  ░░░░            
-                                                ▓▓▓▓  ▒▒▓▓  ▒▒      ▓▓                  
-            ▒▒░░░░░░▒▒▒▒░░                      ░░▓▓▓▓▓▓  ██      ▓▓▓▓                
-                    ░░▒▒                            ▓▓▓▓  ▒▒██      ▓▓▓▓                
-                ░░▒▒                              ▓▓▓▓  ██        ▓▓░░                
-                ▒▒▒▒                              ▓▓██▒▒    ░░░░                      
-                ▒▒                              ▓▓▓▓██  ██  ░░░░░░    ░░░░▒▒▒▒▒▒▒▒      
-            ▒▒                                  ▓▓██▒▒▒▒                ▒▒▒▒          
-        ▒▒▒▒                                      ████  ▒▒              ▒▒▓▓▒▒▒▒▒▒▒▒▒▒
-        ▒▒▒▒                                          ░░                  ░░▓▓▒▒        
-    ░░▒▒                                                          ▒▒░░▓▓▒▒██▒▒▒▒      
-    ▒▒                                                ▓▓▓▓    ▒▒  ▓▓▓▓██████▓▓        
-                                ▒▒░░░░░░░░  ░░░░    ▒▒▓▓▓▓    ▓▓▓▓████████████▒▒      
-                                                    ▓▓▓▓▓▓    ▓▓▓▓████▓▓██████▓▓      
-░░                                            ▓▓▓▓▓▓▒▒░░▓▓▓▓▓▓▓▓████████████████      
-░░                                          ▓▓▓▓▒▒▓▓░░░░░░▓▓▒▒▓▓▒▒██▓▓▓▓▓▓▓▓▓▓██      
-                                            ▓▓▒▒  ▒▒░░      ▓▓▒▒▓▓▓▓██▓▓██████████    
-                                            ▒▒    ░░          ░░▒▒▒▒▒▒██▓▓▒▒██████    
-                                            ░░                ░░░░▓▓▓▓▓▓▓▓██░░▓▓██▒▒    
-    ░░                                                ░░░░░░▒▒▒▒▒▒▒▒▓▓▓▓██              
-░░░░                                    ░░▒▒▒▒              ▓▓▓▓▓▓▒▒▓▓██              
-░░░░░░░░                                                      ▓▓▒▒▒▒▓▓▒▒████            
-░░░░░░░░                          ░░                            ▒▒▓▓▓▓▓▓██▓▓            
-░░░░░░░░░░░░                        ░░                              ██  ██▓▓            
-░░░░░░░░░░░░░░░░                                                        ▓▓              
-░░░░░░░░░░░░░░░░░░  ░░                                                                  
-░░░░░░░░░░░░░░░░░░░░░░      ░░                                                          
-░░░░░░░░░░░░░░░░░░░░    ░░▒▒░░                                                          
-░░░░░░░░░░░░░░                                                                          ";
+                                ▒▒████                                              
+                                ▓▓██████▓▓                                          
+                                ██████████                                          
+                                ██████████                                          
+                                ████████████                                        
+                                ██████████▒▒                                        
+                                ██████████                                          
+                            ▒▒  ██████▓▓                                            
+                              ████████░░                                            
+                              ████████                                              
+                              ████████  ▒▒                                          
+                                  ░░██  ░░                                          
+                                ░░██████  ▒▒▓▓                                      
+                                  ▒▒██  ████  ██  ██  ██                            
+                                ░░░░    ██  ▒▒  ▓▓██                                
+                                  ░░░░  ░░      ░░██▒▒                              
+                                  ░░░░          ░░  ▒▒                              
+                                    ░░  ░░      ▒▒▒▒  ░░▓▓▓▓                        
+                              ░░                ▒▒  ▓▓  ▓▓▓▓▓▓                      
+                                        ░░                ▓▓▓▓                      
+                                          ░░░░          ░░▒▒▓▓                      
+                                          ░░░░░░        ▓▓▒▒▓▓                      
+                          ░░            ░░░░░░  ░░        ▓▓                        
+                          ░░                  ░░░░  ▓▓    ▓▓                        
+                        ░░                  ░░░░  ▓▓  ▓▓      ▒▒░░                  
+                      ░░                    ░░░░              ▒▒                    
+                    ░░                        ░░░░░░    ░░    ▓▓▓▓                  
+                ░░░░                                      ▓▓▓▓▓▓▓▓                  
+                                                ▓▓▓▓  ░░▓▓▓▓▓▓▓▓▓▓░░                
+                                            ▒▒▓▓▓▓▓▓▒▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓                
+                                          ▓▓  ▓▓▓▓  ▒▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░              
+                                        ░░░░          ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒▒              
+                                        ▒▒            ▓▓▓▓▓▓▓▓░░▓▓▒▒                
+                                        ▓▓            ▓▓▓▓▓▓▓▓                      
+                                                      ▒▒▓▓▓▓▓▓░░                    
+                                                            ▓▓                      ";
         public static string natsci = @"                      ░░                                                          
                     ░░░░░░            ░░                                          
                 ░░░░░░░░░░        ░░░░░░░░                ░░░░                  
@@ -634,8 +603,8 @@ namespace Monke
 
   This game puts your typing skills to the test! To play the game, you must type the text that will   
   be shown on the screen. The text contains educational facts from subjects like Filipino, English,   
-  Natural Science, and the Social Sciences which you can choose from as well. Be sure to pay close    
-  attention to the text, so you can ace the bonus quiz question that comes after1 game!           
+  Natural Science, and the Social Sciences which you can choose from as well. Be sure to pay close
+  attention to the text, so you can ace the bonus quiz question that comes after1 game!               
 
   The game records your WPM (words per minute) score for each game. The Stats window (press 2) shows  
   a summary of your scores so far, so you will be able to track down your progress!                   
