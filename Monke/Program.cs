@@ -288,23 +288,24 @@ namespace Monke
             Console.Clear();
         }
         // This is for centering strings in the console, even accounting for multiple lines of text within a
-        // single string.
+        // single string. The variable 'newLine' is for determining whether the cursor should move to the next
+        // line after finishing writing the entire string, or if it should stay in place on the current line.
+        // The function also returns the character length of the last line, which is useful only for a specific
+        // part of the code.
         static int WriteCentered(string str, ConsoleColor color = ConsoleColor.White, bool newLine = true)
         {
             StringReader reader = new(str);
-            string line = reader.ReadLine();
-            int lastLineLength = 0;
+            string line = "";
             Console.ForegroundColor = color;
-            while (line != null)
+            while (reader.Peek() != -1)
             {
-                lastLineLength = line.Length;
-                Console.CursorLeft = (Console.WindowWidth - lastLineLength) / 2;
-                Console.Write(line);
                 line = reader.ReadLine();
-                if (line != null || newLine) Console.WriteLine();
+                Console.CursorLeft = (Console.WindowWidth - line.Length) / 2;
+                Console.Write(line);
+                if (reader.Peek() != -1 || newLine) Console.WriteLine();
             }
             Console.ForegroundColor = ConsoleColor.White;
-            return lastLineLength;
+            return line.Length;
         }
         // This is for wrapping long text strings within the visible text box of the game proper UI. Notice that
         // it returns an array of boolean values. Each word in the sample text is assigned a flag in this boolean
