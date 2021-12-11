@@ -298,7 +298,7 @@ namespace Monke
             while (line != null)
             {
                 lastLineLength = line.Length;
-                Console.SetCursorPosition((Console.WindowWidth - lastLineLength) / 2, Console.CursorTop);
+                Console.CursorLeft = (Console.WindowWidth - lastLineLength) / 2;
                 Console.Write(line);
                 line = reader.ReadLine();
                 if (line != null || newLine) Console.WriteLine();
