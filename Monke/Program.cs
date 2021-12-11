@@ -348,14 +348,17 @@ namespace Monke
             for (int i = 1; i < tsvLines.Length; i++)
             {
                 string[] dataRow = tsvLines[i].Split('\t');
-                if (dataRow[0] == subject && dataRow[1] == difficulty) textIndex--;
-                if (textIndex == 0)
+                if (dataRow[0] == subject && dataRow[1] == difficulty)
                 {
-                    text = dataRow[2];
-                    quizQuestion = dataRow[3];
-                    for (int j = 0; j < 4; j++) choices[j] = dataRow[4 + j];
-                    quizAnswer = dataRow[8];
-                    break;
+                    textIndex--;
+                    if (textIndex == 0)
+                    {
+                        text = dataRow[2];
+                        quizQuestion = dataRow[3];
+                        for (int j = 0; j < 4; j++) choices[j] = dataRow[4 + j];
+                        quizAnswer = dataRow[8];
+                        break;
+                    }
                 }
             }
         }
