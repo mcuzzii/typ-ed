@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.IO;
 
 namespace Monke
 {
@@ -8,364 +11,320 @@ namespace Monke
     {
         static void Main()
         {
-            List<Game> games = new List<Game>();
-            Random random = new Random();
+            // This is used to store information about the games played by the user. It is only useful for the
+            // stats menu.
+            List<Game> games = new();
+            // The randomizer will be used for selecting a text randomly from the user-chosen category
+            // (subject and difficulty level).
+            Random randomObject = new();
             bool quitGame = false;
             do
             {
+                // The code will always return to this line if the user wishes to go back to the main menu.
+                // Putting this in a do-while loop makes it easy to do by simply calling 'continue;' anywhere
+                // down the line.
                 Console.Clear();
-                printCenter(Art.comp, ConsoleColor.Blue);
-                printCenter(Art.startscreen);
-                while (true)
+                WriteCentered(Art.computer, ConsoleColor.Blue);
+                WriteCentered(Art.mainMenu);
+                ConsoleKey menuKey = Console.ReadKey(true).Key;
+                while (!(menuKey is ConsoleKey.D1 or ConsoleKey.D2 or ConsoleKey.Backspace)) menuKey = Console.ReadKey(true).Key;
+                if (menuKey == ConsoleKey.D1)
                 {
-                    if (Console.KeyAvailable)
+                    string subject = "";
+                    string difficulty = "";
+                    string gameArt = "";
+                    string gameHeader = "";
+                    ConsoleColor artColor = ConsoleColor.White;
+                    // This is for the subjects menu screen.
+                    Console.Clear();
+                    WriteCentered(Art.subjectsHeader, ConsoleColor.Blue);
+                    WriteCentered(Art.subjectsMenu);
+                    ConsoleKey subjectKey = Console.ReadKey(true).Key;
+                    while (!(subjectKey is ConsoleKey.D1 or ConsoleKey.D2 or ConsoleKey.D3 or ConsoleKey.D4 or ConsoleKey.Backspace)) subjectKey = Console.ReadKey(true).Key;
+                    switch (subjectKey)
                     {
-                        bool backToMainMenu = false;
-                        ConsoleKeyInfo menuKey = Console.ReadKey(true);
-                        if (menuKey.Key == ConsoleKey.D1)
-                        {
-                            string subject = "";
-                            string difficulty = "";
-                            Console.Clear();
-                            printCenter(Art.subjheader, ConsoleColor.Blue);
-                            printCenter(Art.subjectscreen);
-                            while (true)
-                            {
-                                if (Console.KeyAvailable)
-                                {
-                                    ConsoleKeyInfo subjectKey = Console.ReadKey(true);
-                                    switch (subjectKey.Key)
-                                    {
-                                        case ConsoleKey.D1:
-                                            subject = "Filipino";
-                                            break;
-                                        case ConsoleKey.D2:
-                                            subject = "Natural Science";
-                                            break;
-                                        case ConsoleKey.D3:
-                                            subject = "English";
-                                            break;
-                                        case ConsoleKey.D4:
-                                            subject = "Social Sciences";
-                                            break;
-                                        case ConsoleKey.Backspace:
-                                            backToMainMenu = true;
-                                            break;
-                                        default:
-                                            continue;
-                                    }
-                                    break;
-                                }
-                            }
-                            if (backToMainMenu) break;
-                            Console.Clear();
-                            printCenter(Art.diffheader, ConsoleColor.Blue);
-                            printCenter(Art.difficultyscreen);
-                            while (true)
-                            {
-                                if (Console.KeyAvailable)
-                                {
-                                    ConsoleKeyInfo difficultyKey = Console.ReadKey(true);
-                                    switch (difficultyKey.Key)
-                                    {
-                                        case ConsoleKey.D1:
-                                            difficulty = "Easy";
-                                            break;
-                                        case ConsoleKey.D2:
-                                            difficulty = "Medium";
-                                            break;
-                                        case ConsoleKey.D3:
-                                            difficulty = "Hard";
-                                            break;
-                                        case ConsoleKey.Backspace:
-                                            backToMainMenu = true;
-                                            break;
-                                        default:
-                                            continue;
-                                    }
-                                    break;
-                                }
-                            }
-                            if (backToMainMenu) break;
-                            ConsoleColor artColor = ConsoleColor.White;
-                            string gameArt = "";
-                            string gameHeader = "";
-                            switch (subject)
-                            {
-                                case "Filipino":
-                                    artColor = ConsoleColor.DarkRed;
-                                    gameArt = Art.phflag;
-                                    gameHeader = Art.filheader;
-                                    break;
-                                case "Natural Science":
-                                    artColor = ConsoleColor.DarkGreen;
-                                    gameArt = Art.natsci;
-                                    gameHeader = Art.natsciheader;
-                                    break;
-                                case "English":
-                                    artColor = ConsoleColor.DarkBlue;
-                                    gameArt = Art.eng;
-                                    gameHeader = Art.engheader;
-                                    break;
-                                case "Social Sciences":
-                                    artColor = ConsoleColor.DarkYellow;
-                                    gameArt = Art.socsci;
-                                    gameHeader = Art.socsciheader;
-                                    break;
-                            }
-                            while (true)
-                            {
-                                Console.Clear();
-                                printCenter(Art.loadingscreen);
-                                string loadingBar = "  Loading...                                                                                          ";
-                                Console.WriteLine();
-                                (int, int) cursorPos = ((Console.WindowWidth - loadingBar.Length) / 2 + 13, Console.CursorTop );
-                                printCenter(loadingBar);
-                                Console.WriteLine();
-                                printCenter(gameArt, artColor);
-                                Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-                                for (int t = 0; t < loadingBar.Length - 13; t++)
-                                {
-                                    Console.Write("█");
-                                    System.Threading.Thread.Sleep((int)(4000.0 / (loadingBar.Length - 13)));
-                                }
-                                System.Threading.Thread.Sleep(250);
-                                Console.Clear();
-                                printCenter(gameHeader, artColor);
-                                Console.WriteLine();
-                                Game game = new Game(subject, difficulty, random);
-                                string text = game.text;
-                                string[] words = text.Split(' ');
-                                for (int i = 0; i < words.Length; i++) if (i < words.Length - 1) words[i] += " ";
-                                printCenter("█============█ Type this text! █====================================================================█");
-                                string borders = "█                                                                                                   █";
-                                Console.SetCursorPosition((Console.WindowWidth - borders.Length) / 2, Console.CursorTop);
-                                Console.Write(borders);
-                                int[] newlineFlags = WrapText(words, borders);
-                                Console.WriteLine();
-                                printCenter(borders);
-                                printCenter("█===================================================================================================█");
-                                Console.WriteLine();
-                                int[] typeTracker = new int[2] { (Console.WindowWidth - borders.Length) / 2 + 5, Console.CursorTop - newlineFlags.Sum() - 3 };
-                                System.Diagnostics.Stopwatch time = new System.Diagnostics.Stopwatch();
-                                time.Start();
-                                for (int i = 0; i < words.Length; i++)
-                                {
-                                    Console.SetCursorPosition((Console.WindowWidth - borders.Length) / 2, Console.CursorTop);
-                                    Console.Write("Output: ");
-                                    string input = "";
-                                    while (true)
-                                    {
-                                        if (Console.KeyAvailable)
-                                        {
-                                            ConsoleKeyInfo key = Console.ReadKey(true);
-                                            if (Char.IsLetterOrDigit(key.KeyChar) || Char.IsPunctuation(key.KeyChar) || Char.IsWhiteSpace(key.KeyChar))
-                                            {
-                                                string character = key.KeyChar.ToString();
-                                                input += character;
-                                                Console.Write(character);
-                                                if (words[i].StartsWith(input))
-                                                {
-                                                    cursorPos = Console.GetCursorPosition();
-                                                    Console.SetCursorPosition(typeTracker[0], typeTracker[1]);
-                                                    Console.ForegroundColor = artColor;
-                                                    Console.Write(key.KeyChar);
-                                                    Console.ForegroundColor = ConsoleColor.White;
-                                                    typeTracker[0]++;
-                                                    Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-                                                }
-                                            }
-                                            else if (key.Key == ConsoleKey.Backspace && input.Length != 0)
-                                            {
-                                                Console.Write("\b \b");
-                                                if (words[i].StartsWith(input))
-                                                {
-                                                    cursorPos = Console.GetCursorPosition();
-                                                    Console.SetCursorPosition(typeTracker[0] - 1, typeTracker[1]);
-                                                    Console.Write(input.Last());
-                                                    typeTracker[0]--;
-                                                    Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-                                                }
-                                                input = input.Remove(input.Length - 1, 1);
-                                            }
-                                            if (input == words[i])
-                                            {
-                                                Console.Write(new string ('\b', input.Length) + new string(' ', input.Length));
-                                                if (i < words.Length - 1)
-                                                {
-                                                    if (newlineFlags[i + 1] == 1)
-                                                    {
-                                                        typeTracker[0] = (Console.WindowWidth - borders.Length) / 2 + 5;
-                                                        typeTracker[1]++;
-                                                    }
-                                                }
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                                time.Stop();
-                                game.wpm = (int)(words.Length / (time.ElapsedMilliseconds / 60000.0));
-                                Console.Clear();
-                                printCenter(Art.quizheader, artColor);
-                                Console.WriteLine();
-                                string wpmLine = "  WPM:                                                                                                ";
-                                cursorPos = ((Console.WindowWidth - wpmLine.Length) / 2 + 7, Console.CursorTop);
-                                printCenter(wpmLine);
-                                Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-                                Console.Write(game.wpm);
-                                System.Threading.Thread.Sleep(1500);
-                                Console.SetCursorPosition(0, Console.CursorTop + 1);
-                                Console.WriteLine();
-                                printCenter("█============█ Bonus question! █====================================================================█");
-                                Console.SetCursorPosition((Console.WindowWidth - borders.Length) / 2, Console.CursorTop);
-                                Console.Write(borders);
-                                string[] questionWords = game.quizQuestion.Split(' ');
-                                for (int i = 0; i < questionWords.Length; i++) if (i < questionWords.Length - 1) questionWords[i] += " ";
-                                WrapText(questionWords, borders);
-                                Console.WriteLine();
-                                printCenter(borders);
-                                string[] choiceButtons = new string[4] { " (Press A)", " (Press B)", " (Press C)", " (Press D)" };
-                                for (int i = 0; i < 4; i++)
-                                {
-                                    cursorPos = ((Console.WindowWidth - borders.Length) / 2 + 9, Console.CursorTop);
-                                    printCenter(borders);
-                                    Console.SetCursorPosition(cursorPos.Item1, cursorPos.Item2);
-                                    Console.WriteLine("█ " + game.choices[i] + choiceButtons[i]);
-                                }
-                                printCenter(borders);
-                                printCenter("█===================================================================================================█");
-                                while (true)
-                                {
-                                    if (Console.KeyAvailable)
-                                    {
-                                        string choiceKey = Console.ReadKey(true).KeyChar.ToString();
-                                        if (choiceKey != "a" && choiceKey != "b" && choiceKey != "c" && choiceKey != "d") continue;
-                                        game.result = choiceKey == game.quizAnswer? 1 : 0;
-                                        break;
-                                    }
-                                }
-                                games.Add(game);
-                                Console.Clear();
-                                if (game.result == 1)
-                                {
-                                    printCenter(Art.congratulations1, artColor);
-                                    printCenter(Art.congratulations2);
-                                }
-                                else
-                                {
-                                    printCenter(Art.answerwrong1, artColor);
-                                    printCenter(Art.answerwrong2);
-                                }
-                                System.Threading.Thread.Sleep(1500);
-                                printCenter(Art.playagainmenu);
-                                bool playAgain = false;
-                                while (true)
-                                {
-                                    if (Console.KeyAvailable)
-                                    {
-                                        ConsoleKeyInfo playAgainKey = Console.ReadKey(true);
-                                        if (playAgainKey.Key == ConsoleKey.D1) playAgain = true;
-                                        else if (playAgainKey.Key == ConsoleKey.Backspace) backToMainMenu = true;
-                                        else continue;
-                                        break;
-                                    }
-                                }
-                                if (!playAgain) break;
-                            }
-                            if (backToMainMenu) break;
-                        }
-                        else if (menuKey.Key == ConsoleKey.D2)
-                        {
-                            Console.Clear();
-                            printCenter(Art.statsmenu);
-                            Console.WriteLine();
-                            string topEdge = "█============█ Summary statistics █=================================================================█";
-                            string borders = "█                                                                                                   █";
-                            if (games.Count == 0)
-                            {
-                                System.Threading.Thread.Sleep(2000);
-                                Console.SetCursorPosition((Console.WindowWidth - topEdge.Length) / 2, Console.CursorTop);
-                                Console.WriteLine("...Uhh, well this is awkward. Seems like you haven't played a game yet!");
-                            }
-                            else
-                            {
-                                printCenter(topEdge);
-                                printCenter(borders);
-                                string[] strings = new string[3] {
-                                    "█ Number of games played: " + games.Count,
-                                    "█ Average WPM: " + Math.Round(games.Average(item => item.wpm), 2),
-                                    "█ Correctly answered quizzes: " + games.Sum(item => item.result) + " / " + games.Count
-                                };
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    Console.SetCursorPosition((Console.WindowWidth - topEdge.Length) / 2, Console.CursorTop);
-                                    Console.Write(borders);
-                                    Console.SetCursorPosition((Console.WindowWidth - topEdge.Length) / 2 + 5, Console.CursorTop);
-                                    Console.WriteLine(strings[i]);
-                                }
-                                printCenter(borders);
-                                printCenter("█===================================================================================================█");
-                                Console.WriteLine();
-                                Console.SetCursorPosition((Console.WindowWidth - topEdge.Length) / 2, Console.CursorTop);
-                                Console.WriteLine("Game #\tSubject\t\t\tDifficulty level\tWPM\t\tBonus quiz result");
-                                Console.WriteLine();
-                                for(int i = 0; i < games.Count; i++)
-                                {
-                                    string space = games[i].subject.Length >= 8 ? "\t\t" : "\t\t\t";
-                                    string quiz = games[i].result == 1 ? "Correct" : "Wrong";
-                                    Console.SetCursorPosition((Console.WindowWidth - topEdge.Length) / 2, Console.CursorTop);
-                                    Console.WriteLine(i + 1 + "\t\t" + games[i].subject + space + games[i].difficulty + "\t\t\t" + games[i].wpm + "\t\t" + quiz);
-                                }
-                            }
-                            Console.WriteLine();
-                            Console.SetCursorPosition((Console.WindowWidth - topEdge.Length) / 2, Console.CursorTop);
-                            Console.WriteLine("<< Back to Main Menu (Press Backspace)");
-                            while (true) if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Backspace) break;
+                        case ConsoleKey.D1:
+                            subject = "Filipino";
+                            artColor = ConsoleColor.DarkRed;
+                            gameArt = Art.philippineMap;
+                            gameHeader = Art.filipino;
                             break;
-                        }
-                        else if (menuKey.Key == ConsoleKey.Backspace)
-                        {
-                            quitGame = true;
+                        case ConsoleKey.D2:
+                            subject = "Natural Science";
+                            artColor = ConsoleColor.DarkGreen;
+                            gameArt = Art.beaker;
+                            gameHeader = Art.naturalScience;
                             break;
+                        case ConsoleKey.D3:
+                            subject = "English";
+                            artColor = ConsoleColor.DarkBlue;
+                            gameArt = Art.paperAndQuill;
+                            gameHeader = Art.english;
+                            break;
+                        case ConsoleKey.D4:
+                            subject = "Social Sciences";
+                            artColor = ConsoleColor.DarkYellow;
+                            gameArt = Art.worldMap;
+                            gameHeader = Art.socialSciences;
+                            break;
+                        case ConsoleKey.Backspace:
+                            continue;
+                    }
+                    // This is for the difficulty menu screen.
+                    Console.Clear();
+                    WriteCentered(Art.difficultyHeader, ConsoleColor.Blue);
+                    WriteCentered(Art.difficultyMenu);
+                    ConsoleKey difficultyKey = Console.ReadKey(true).Key;
+                    while (!(difficultyKey is ConsoleKey.D1 or ConsoleKey.D2 or ConsoleKey.D3 or ConsoleKey.Backspace)) difficultyKey = Console.ReadKey(true).Key;
+                    switch (difficultyKey)
+                    {
+                        case ConsoleKey.D1:
+                            difficulty = "Easy";
+                            break;
+                        case ConsoleKey.D2:
+                            difficulty = "Medium";
+                            break;
+                        case ConsoleKey.D3:
+                            difficulty = "Hard";
+                            break;
+                        case ConsoleKey.Backspace:
+                            continue;
+                    }
+                    while (true)
+                    {
+                        // The variable 'cursorPosition' will be a multi-purpose variable for saving useful
+                        // coordinates of the console cursor.
+                        (int, int) cursorPosition = new();
+                        // This is for the loading screen.
+                        Console.Clear();
+                        int lineLength = WriteCentered(Art.getReady);
+                        Console.WriteLine();
+                        Console.CursorLeft = (Console.WindowWidth - lineLength) / 2;
+                        Console.Write("  Loading... ");
+                        cursorPosition = Console.GetCursorPosition();
+                        Console.WriteLine();
+                        WriteCentered(gameArt, artColor);
+                        Console.SetCursorPosition(cursorPosition.Item1, cursorPosition.Item2);
+                        for (int t = 0; t < lineLength - 13; t++)
+                        {
+                            Console.Write("█");
+                            Thread.Sleep((int)(4000.0 / (lineLength - 13)));
                         }
+                        Thread.Sleep(250);
+                        // This is for displaying the game proper screen. The variable 'words' contains the individual
+                        // words of the text that the user will type.
+                        Console.Clear();
+                        WriteCentered(gameHeader, artColor);
+                        Console.WriteLine();
+                        Game game = new(subject, difficulty, randomObject);
+                        string[] words = game.text.Split(' ');
+                        for (int i = 0; i < words.Length; i++) if (i < words.Length - 1) words[i] += " ";
+                        WriteCentered("█============█ Type this text! █====================================================================█");
+                        string borders = "█                                                                                                   █";
+                        WriteCentered(borders, newLine: false);
+                        bool[] newLineFlags = WrapText(words, borders);
+                        Console.WriteLine();
+                        WriteCentered(borders);
+                        WriteCentered("█===================================================================================================█");
+                        Console.WriteLine();
+                        // The following code is for how the game proper screen works, including live tracking of user
+                        // input. The text box displayed also acts as a progress bar; the displayed text becomes colored
+                        // progressively as the user input correctly matches the text.
+                        int[] typeTracker = new int[2] { (Console.WindowWidth - borders.Length) / 2 + 5, 6 };
+                        Stopwatch time = new();
+                        time.Start();
+                        for (int i = 0; i < words.Length; i++)
+                        {
+                            Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2;
+                            Console.Write("Output: ");
+                            string inputWord = "";
+                            while (inputWord != words[i])
+                            {
+                                ConsoleKeyInfo key = Console.ReadKey(true);
+                                if (Char.IsLetterOrDigit(key.KeyChar) || Char.IsPunctuation(key.KeyChar) || Char.IsWhiteSpace(key.KeyChar))
+                                {
+                                    string inputCharacter = key.KeyChar.ToString();
+                                    inputWord += inputCharacter;
+                                    Console.Write(inputCharacter);
+                                    if (words[i].StartsWith(inputWord))
+                                    {
+                                        cursorPosition = Console.GetCursorPosition();
+                                        Console.SetCursorPosition(typeTracker[0], typeTracker[1]);
+                                        Console.ForegroundColor = artColor;
+                                        Console.Write(key.KeyChar);
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                        typeTracker[0]++;
+                                        Console.SetCursorPosition(cursorPosition.Item1, cursorPosition.Item2);
+                                    }
+                                }
+                                else if (key.Key == ConsoleKey.Backspace && inputWord.Length != 0)
+                                {
+                                    Console.Write("\b \b");
+                                    if (words[i].StartsWith(inputWord))
+                                    {
+                                        cursorPosition = Console.GetCursorPosition();
+                                        Console.SetCursorPosition(typeTracker[0] - 1, typeTracker[1]);
+                                        Console.Write(inputWord.Last());
+                                        typeTracker[0]--;
+                                        Console.SetCursorPosition(cursorPosition.Item1, cursorPosition.Item2);
+                                    }
+                                    inputWord = inputWord.Remove(inputWord.Length - 1, 1);
+                                }
+                            }
+                            Console.Write(new string('\b', inputWord.Length) + new string(' ', inputWord.Length));
+                            if (i < words.Length - 1)
+                            {
+                                if (newLineFlags[i + 1])
+                                {
+                                    typeTracker[0] = (Console.WindowWidth - borders.Length) / 2 + 5;
+                                    typeTracker[1]++;
+                                }
+                            }
+                        }
+                        time.Stop();
+                        // This is for displaying the WPM score.
+                        game.wpm = (int)(words.Length / (time.ElapsedMilliseconds / 60000.0));
+                        Console.Clear();
+                        WriteCentered(Art.wpmScoreHeader, artColor);
+                        Console.WriteLine();
+                        Console.CursorLeft = (Console.WindowWidth - lineLength) / 2;
+                        Console.Write("  WPM: ");
+                        Console.WriteLine(game.wpm);
+                        Thread.Sleep(1500);
+                        // This is for displaying the bonus quiz question.
+                        Console.WriteLine();
+                        WriteCentered("█============█ Bonus question! █====================================================================█");
+                        Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2;
+                        Console.Write(borders);
+                        string[] questionWords = game.quizQuestion.Split(' ');
+                        for (int i = 0; i < questionWords.Length; i++) if (i < questionWords.Length - 1) questionWords[i] += " ";
+                        WrapText(questionWords, borders);
+                        Console.WriteLine();
+                        WriteCentered(borders);
+                        string[] choiceButtons = new string[4] { " (Press A)", " (Press B)", " (Press C)", " (Press D)" };
+                        for (int i = 0; i < 4; i++)
+                        {
+                            cursorPosition = ((Console.WindowWidth - borders.Length) / 2 + 9, Console.CursorTop);
+                            WriteCentered(borders);
+                            Console.SetCursorPosition(cursorPosition.Item1, cursorPosition.Item2);
+                            Console.WriteLine("█ " + game.choices[i] + choiceButtons[i]);
+                        }
+                        WriteCentered(borders);
+                        WriteCentered("█===================================================================================================█");
+                        // This is for checking whether the user correctly answered the question.
+                        char choiceKey = Console.ReadKey(true).KeyChar;
+                        while (!(choiceKey is 'a' or 'b' or 'c' or 'd')) choiceKey = Console.ReadKey(true).KeyChar;
+                        game.result = choiceKey.ToString() == game.quizAnswer ? 1 : 0;
+                        // The user had just completed a game! The following is for the play again menu.
+                        games.Add(game);
+                        Console.Clear();
+                        if (game.result == 1)
+                        {
+                            WriteCentered(Art.quizCorrectHeader, artColor);
+                            WriteCentered(Art.quizCorrectText);
+                        }
+                        else
+                        {
+                            WriteCentered(Art.quizWrongHeader, artColor);
+                            WriteCentered(Art.quizWrongText);
+                        }
+                        Thread.Sleep(1500);
+                        WriteCentered(Art.playAgainMenu);
+                        ConsoleKey playAgainKey = Console.ReadKey(true).Key;
+                        while (!(playAgainKey is ConsoleKey.D1 or ConsoleKey.Backspace)) playAgainKey = Console.ReadKey(true).Key;
+                        if (playAgainKey == ConsoleKey.Backspace) break;
                     }
                 }
+                else if (menuKey == ConsoleKey.D2)
+                {
+                    // This is for displaying the stats screen.
+                    Console.Clear();
+                    WriteCentered(Art.statsMenu);
+                    Console.WriteLine();
+                    string borders = "█                                                                                                   █";
+                    if (games.Count == 0)
+                    {
+                        Thread.Sleep(2000);
+                        Console.CursorLeft =  (Console.WindowWidth - borders.Length) / 2;
+                        Console.WriteLine("...Uhh, well this is awkward. Seems like you haven't played a game yet!");
+                    }
+                    else
+                    {
+                        WriteCentered("█============█ Summary statistics █=================================================================█");
+                        WriteCentered(borders);
+                        string[] strings = new string[3] {
+                            "█ Number of games played: " + games.Count,
+                            "█ Average WPM: " + Math.Round(games.Average(item => item.wpm), 2),
+                            "█ Correctly answered quizzes: " + games.Sum(item => item.result) + " / " + games.Count
+                        };
+                        for (int i = 0; i < 3; i++)
+                        {
+                            Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2;
+                            Console.Write(borders);
+                            Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2 + 5;
+                            Console.WriteLine(strings[i]);
+                        }
+                        WriteCentered(borders);
+                        WriteCentered("█===================================================================================================█");
+                        Console.WriteLine();
+                        Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2;
+                        Console.WriteLine("Game #\tSubject\t\t\tDifficulty level\tWPM\t\tBonus quiz result");
+                        Console.WriteLine();
+                        for (int i = 0; i < games.Count; i++)
+                        {
+                            string space = games[i].subject.Length >= 8 ? "\t\t" : "\t\t\t";
+                            string quiz = games[i].result == 1 ? "Correct" : "Wrong";
+                            Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2;
+                            Console.WriteLine(i + 1 + "\t\t" + games[i].subject + space + games[i].difficulty + "\t\t\t" + games[i].wpm + "\t\t" + quiz);
+                        }
+                    }
+                    Console.WriteLine();
+                    Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2;
+                    Console.WriteLine("<< Back to Main Menu (Press Backspace)");
+                    while (Console.ReadKey(true).Key != ConsoleKey.Backspace) ;
+                }
+                else if (menuKey == ConsoleKey.Backspace) quitGame = true;
             } while (!quitGame);
             Console.Clear();
         }
-        static void printCenter(string str, ConsoleColor color = ConsoleColor.White)
+        // This is for centering strings in the console, even accounting for multiple lines of text within a
+        // single string.
+        static int WriteCentered(string str, ConsoleColor color = ConsoleColor.White, bool newLine = true)
         {
-            System.IO.StringReader reader = new System.IO.StringReader(str);
-            string line;
+            StringReader reader = new(str);
+            string line = reader.ReadLine();
+            int lastLineLength = 0;
             Console.ForegroundColor = color;
-            do
+            while (line != null)
             {
+                lastLineLength = line.Length;
+                Console.SetCursorPosition((Console.WindowWidth - lastLineLength) / 2, Console.CursorTop);
+                Console.Write(line);
                 line = reader.ReadLine();
-                if (line != null)
-                {
-                    Console.SetCursorPosition((Console.WindowWidth - line.Length) / 2, Console.CursorTop);
-                    Console.WriteLine(line);
-                }
-            } while (line != null);
+                if (line != null || newLine) Console.WriteLine();
+            }
             Console.ForegroundColor = ConsoleColor.White;
+            return lastLineLength;
         }
-        static int[] WrapText(string[] words, string borders)
+        // This is for wrapping long text strings within the visible text box of the game proper UI. Notice that
+        // it returns an array of boolean values. Each word in the sample text is assigned a flag in this boolean
+        // array, which indicates whether or not it is the beginning of a new line.
+        static bool[] WrapText(string[] words, string borders)
         {
-            int[] newlineFlags = new int[words.Length];
+            bool[] newLineFlags = new bool[words.Length];
             for (int i = 0; i < words.Length; i++)
             {
-                newlineFlags[i] = 0;
-                if (words[i].Length > (Console.WindowWidth + borders.Length) / 2 - Console.CursorLeft - 5 )
+                newLineFlags[i] = false;
+                if (words[i].Length > (Console.WindowWidth + borders.Length) / 2 - Console.CursorLeft - 5)
                 {
-                    newlineFlags[i] = 1;
-                    Console.SetCursorPosition((Console.WindowWidth - borders.Length) / 2, Console.CursorTop + 1);
-                    Console.Write(borders);
-                    Console.SetCursorPosition((Console.WindowWidth - borders.Length) / 2 + 5, Console.CursorTop);
+                    newLineFlags[i] = true;
+                    Console.WriteLine();
+                    WriteCentered(borders, newLine: false);
+                    Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2 + 5;
                 }
                 Console.Write(words[i]);
             }
-            return newlineFlags;
+            return newLineFlags;
         }
     }
     public class Game
@@ -378,12 +337,14 @@ namespace Monke
         public string[] choices = new string[4];
         public string quizAnswer;
         public int result;
-        public Game(string subj, string diff, Random random)
+        public Game(string subj, string diff, Random randomObject)
         {
+            // This is for randomly choosing what text will be typed by the user, according to difficulty
+            // and subject settings.
             subject = subj;
             difficulty = diff;
-            int textIndex = random.Next(1, 6);
-            string[] tsvLines = System.IO.File.ReadAllLines("Dataset.tsv");
+            int textIndex = randomObject.Next(1, 6);
+            string[] tsvLines = File.ReadAllLines("Dataset.tsv");
             for (int i = 1; i < tsvLines.Length; i++)
             {
                 string[] dataRow = tsvLines[i].Split('\t');
@@ -399,9 +360,10 @@ namespace Monke
             }
         }
     }
+    // This is a static class where all the Console art is organized.
     public static class Art
     {
-        public static string comp = @"
+        public const string computer = @"
             ████████████████████████████████████████████████████████                                  
             ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██                                  
             ██▒▒██████████████████▓▓▓▓██████████████████████████▒▒██                                  
@@ -433,9 +395,8 @@ namespace Monke
                                                                                         ██████░░██████
                                                                                         ██░░░░░░░░░░██
                                                                                         ██░░░░░░░░░░██
-                                                                                        ████░░░░░░████
-                                                                                        ██████▓▓██  ";
-        public static string phflag = @"                                              
+                                                                                         ███░░░░░░███ ";
+        public const string philippineMap = @"                                              
                                 ▒▒████                                              
                                 ▓▓██████▓▓                                          
                                 ██████████                                          
@@ -472,52 +433,49 @@ namespace Monke
                                         ▓▓            ▓▓▓▓▓▓▓▓                      
                                                       ▒▒▓▓▓▓▓▓░░                    
                                                             ▓▓                      ";
-        public static string natsci = @"                      ░░                                                          
-                    ░░░░░░            ░░                                          
+        public const string beaker = @"
+                    ░░░░░░            ░░                                        
                 ░░░░░░░░░░        ░░░░░░░░                ░░░░                  
-                    ░░░░░░            ░░░░                ░░░░░░░░                
-                    ░░░░░░            ░░                  ░░░░░░░░                
+                    ░░░░░░            ░░░░                ░░░░░░░░              
+                    ░░░░░░            ░░                  ░░░░░░░░              
                     ░░                                ░░░░░░░░░░░░              
-                                                        ░░░░░░░░░░░░              
+                                                        ░░░░░░░░░░░░            
         ████████████████████████████████████████████████████▓▓▒▒████████        
         ██  ░░░░░░░░░░  ░░░░░░░░░░░░░░▒▒▒▒▒▒░░░░░░░░░░░░░░▒▒▒▒░░░░░░░░██        
-        ██                          ░░░░░░░░░░            ░░░░        ██        
-        ██          ░░              ░░░░░░░░░░                        ██        
-        ██        ░░░░            ░░░░░░░░░░░░░░                      ██        
         ██          ░░          ░░░░░░░░░░░░░░░░░░                    ██        
         ████▓▓▒▒                  ░░░░░░░░░░░░░░          ░░░░    ▓▓▓▓██        
             ▓▓▓▓                    ░░░░░░░░░░            ░░░░░░  ██            
             ████▓▓██                  ░░░░░░      ░░      ░░░░▓▓████            
-                    ██                    ░░      ░░░░░░        ██                
-                    ██                          ░░░░░░░░░░      ██                
-                    ██          ░░░░              ░░░░          ██                
-                    ██▒▒    ░░░░░░░░░░              ░░  ▒▒    ▒▒██                
-                    ██▒▒▒▒░░░░░░░░░░░░░░        ▒▒▒▒  ▒▒▒▒▒▒▒▒▒▒██                
-                ░░████▒▒▒▒░░░░░░░░░░░░░░▒▒    ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒████              
-                ░░██▒▒▒▒▒▒▒▒░░░░░░░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██              
+                    ██                    ░░      ░░░░░░        ██              
+                    ██                          ░░░░░░░░░░      ██              
+                    ██          ░░░░              ░░░░          ██              
+                    ██▒▒    ░░░░░░░░░░              ░░  ▒▒    ▒▒██              
+                    ██▒▒▒▒░░░░░░░░░░░░░░        ▒▒▒▒  ▒▒▒▒▒▒▒▒▒▒██              
+                ░░████▒▒▒▒░░░░░░░░░░░░░░▒▒    ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒████            
+                ░░██▒▒▒▒▒▒▒▒░░░░░░░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██            
             ▓▓▓▓██▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒██▓▓            
             ▓▓▓▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒██            
-            ████▓▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒████          
-            ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒▒▒██          
+            ████▓▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒████        
+            ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒▒▒██        
         ████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒████        
         ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒██        
-        ▓▓██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒██▓▓      
-        ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒██      
+        ▓▓██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒██▓▓    
+        ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒██    
     ▓▓██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒██▓▓    
     ██▓▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒▓▓██    
     ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒▒▒██    
     ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒██    
-    ████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒████  
-    ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒██  
+    ████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒████
+    ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒██
 ▓▓██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒██▒▒
 ████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒████
 ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒▒▒██
 ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒▒▒▒▒██
 ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒▒▒▒▒▒▒██
-    ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██  
-    ░░▓▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓░░  
+    ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
+    ░░▓▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓░░
     ░░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒▒▓▓██▓▓▓▓▓▓░░    ";
-        public static string eng = @"
+        public const string paperAndQuill = @"
     ██▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓            
 ██████████████████████████████████████████████████████████████████████          
 ██████▓▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓████████░░░░░░░░▒▒██████        
@@ -561,7 +519,7 @@ namespace Monke
 ████████████████████████████████████████████████████                            
     ██████████████████████████████████████████████████                            
                                                                                 ";
-        public static string socsci = @"
+        public const string worldMap = @"
                             ░░░░▒▒░░▒▒░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▒▒░░░░▒▒▒▒░░▒▒░░░░▒▒░░                            
                       ░░░░░░░░▒▒░░▒▒▒▒▒▒▒▒▓▓▓▓▓▓▓▓▒▒▒▒▒▒▓▓░░░░░░▒▒▒▒░░░░░░▒▒░░░░▒▒▒▒▒▒░░▒▒▒▒░░▒▒░░░░░░░░                        
                   ░░▒▒░░░░░░░░▒▒▓▓▒▒▒▒▒▒▓▓▒▒░░░░▒▒██▓▓▓▓░░░░░░░░░░░░░░░░░░▒▒░░▒▒▒▒▓▓▓▓▓▓▒▒▒▒▒▒▓▓▒▒░░░░░░░░▒▒                    
@@ -596,20 +554,15 @@ namespace Monke
                       ░░░░░░░░            ░░░░░░  ░░░░░░                                        ░░░░░░░░                        
                             ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░                            
           ";
-        public static string startscreen = @"
+        public const string mainMenu = @"
             
   █░█░█ █▀▀ █░░ █▀▀ █▀█ █▀▄▀█ █▀▀   ▀█▀ █▀█   ▀█▀ █▄█ █▀█ ▄▄ █▀▀ █▀▄ █                                
   ▀▄▀▄▀ ██▄ █▄▄ █▄▄ █▄█ █░▀░█ ██▄   ░█░ █▄█   ░█░ ░█░ █▀▀ ░░ ██▄ █▄▀ ▄                                
 
   This game puts your typing skills to the test! To play the game, you must type the text that will   
   be shown on the screen. The text contains educational facts from subjects like Filipino, English,   
-  Natural Science, and the Social Sciences which you can choose from as well. Be sure to pay close
-  attention to the text, so you can ace the bonus quiz question that comes after1 game!               
-
-  The game records your WPM (words per minute) score for each game. The Stats window (press 2) shows  
-  a summary of your scores so far, so you will be able to track down your progress!                   
-
-  Good luck, typemaster!                                                                              
+  Natural Science, and the Social Sciences which you can choose from as well. Be sure to pay close    
+  attention to the text, so you can ace the bonus quiz question that comes after every game!          
 
 █============█ Main Menu █==========================================================================█
 █                                                                                                   █
@@ -618,7 +571,7 @@ namespace Monke
 █        █ Quit Game (Press Backspace)                                                              █
 █                                                                                                   █
 █===================================================================================================█";
-        public static string subjectscreen = @"
+        public const string subjectsMenu = @"
 █===================================================================================================█
 █                                                                                                   █
 █        █ Filipino (Press 1)                                                                       █
@@ -628,7 +581,7 @@ namespace Monke
 █        █ Back to Main Menu (Press Backspace)                                                      █
 █                                                                                                   █
 █===================================================================================================█";
-        public static string difficultyscreen = @"
+        public const string difficultyMenu = @"
 █===================================================================================================█
 █                                                                                                   █
 █        █ Easy (Press 1)                                                                           █
@@ -637,43 +590,43 @@ namespace Monke
 █        █ Back to Main Menu (Press Backspace)                                                      █
 █                                                                                                   █
 █===================================================================================================█";
-        public static string loadingscreen = @"
+        public const string getReady = @"
   █▀▀ █▀▀ ▀█▀   █▀█ █▀▀ ▄▀█ █▀▄ █▄█ █                                                                 
   █▄█ ██▄ ░█░   █▀▄ ██▄ █▀█ █▄▀ ░█░ ▄                                                                 ";
-        public static string filheader = @"
+        public const string filipino = @"
   █▀▀ █ █░░ █ █▀█ █ █▄░█ █▀█                                                                          
   █▀░ █ █▄▄ █ █▀▀ █ █░▀█ █▄█                                                                          ";
-        public static string natsciheader = @"
+        public const string naturalScience = @"
   █▄░█ ▄▀█ ▀█▀ █░█ █▀█ ▄▀█ █░░   █▀ █▀▀ █ █▀▀ █▄░█ █▀▀ █▀▀                                            
   █░▀█ █▀█ ░█░ █▄█ █▀▄ █▀█ █▄▄   ▄█ █▄▄ █ ██▄ █░▀█ █▄▄ ██▄                                            ";
-        public static string engheader = @"
+        public const string english = @"
   █▀▀ █▄░█ █▀▀ █░░ █ █▀ █░█                                                                           
   ██▄ █░▀█ █▄█ █▄▄ █ ▄█ █▀█                                                                           ";
-        public static string socsciheader = @"
+        public const string socialSciences = @"
   █▀ █▀█ █▀▀ █ ▄▀█ █░░   █▀ █▀▀ █ █▀▀ █▄░█ █▀▀ █▀▀ █▀                                                 
   ▄█ █▄█ █▄▄ █ █▀█ █▄▄   ▄█ █▄▄ █ ██▄ █░▀█ █▄▄ ██▄ ▄█                                                 ";
-        public static string subjheader = @"
+        public const string subjectsHeader = @"
   █▀▀ █░█ █▀█ █▀█ █▀ █▀▀   ▄▀█   █▀ █░█ █▄▄ ░░█ █▀▀ █▀▀ ▀█▀ ▀                                         
   █▄▄ █▀█ █▄█ █▄█ ▄█ ██▄   █▀█   ▄█ █▄█ █▄█ █▄█ ██▄ █▄▄ ░█░ ▄                                         ";
-        public static string diffheader = @"
+        public const string difficultyHeader = @"
   █▀▀ █░█ █▀█ █▀█ █▀ █▀▀   ▄▀█   █▀▄ █ █▀▀ █▀▀ █ █▀▀ █░█ █░░ ▀█▀ █▄█   █░░ █▀▀ █░█ █▀▀ █░░ ▀          
   █▄▄ █▀█ █▄█ █▄█ ▄█ ██▄   █▀█   █▄▀ █ █▀░ █▀░ █ █▄▄ █▄█ █▄▄ ░█░ ░█░   █▄▄ ██▄ ▀▄▀ ██▄ █▄▄ ▄          ";
-        public static string quizheader = @"
+        public const string wpmScoreHeader = @"
   █▄█ █▀█ █░█ █▀█   █▀ █▀█ █▀▀ █▀▀ █▀▄   █░█░█ ▄▀█ █▀                                                 
   ░█░ █▄█ █▄█ █▀▄   ▄█ █▀▀ ██▄ ██▄ █▄▀   ▀▄▀▄▀ █▀█ ▄█ ▄ ▄ ▄                                           ";
-        public static string congratulations1 = @"
+        public const string quizCorrectHeader = @"
   █▀▀ █▀█ █▄░█ █▀▀ █▀█ ▄▀█ ▀█▀ █░█ █░░ ▄▀█ ▀█▀ █ █▀█ █▄░█ █▀ █                                        
   █▄▄ █▄█ █░▀█ █▄█ █▀▄ █▀█ ░█░ █▄█ █▄▄ █▀█ ░█░ █ █▄█ █░▀█ ▄█ ▄                                        ";
-        public static string congratulations2 = @"
+        public const string quizCorrectText = @"
 
   You aced the bonus question! Great job!                                                             ";
-        public static string answerwrong1 = @"
+        public const string quizWrongHeader = @"
   ▄▀█ █░█░█ █░█░█ █░█░█ █░█░█   ▀ ▄▀                                                                  
   █▀█ ▀▄▀▄▀ ▀▄▀▄▀ ▀▄▀▄▀ ▀▄▀▄▀   ▄ ▀▄                                                                  ";
-        public static string answerwrong2 = @"
+        public const string quizWrongText = @"
 
   Looks like you didn't get it right this time. That's alright! You can always try again.             ";
-        public static string playagainmenu = @"
+        public const string playAgainMenu = @"
 
 █============█ Would you like to play again? █======================================================█
 █                                                                                                   █
@@ -681,7 +634,7 @@ namespace Monke
 █        █ Back to Main Menu (Press Backspace)                                                      █
 █                                                                                                   █
 █===================================================================================================█";
-        public static string statsmenu = @"
+        public const string statsMenu = @"
   █▀ ▀█▀ ▄▀█ ▀█▀ █▀                                                                                   
   ▄█ ░█░ █▀█ ░█░ ▄█                                                                                   
 
