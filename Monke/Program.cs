@@ -98,7 +98,6 @@ namespace Monke
                         // This is for the loading screen.
                         Console.Clear();
                         int lineLength = WriteCentered(Art.getReady);
-                        Console.WriteLine();
                         Console.CursorLeft = (Console.WindowWidth - lineLength) / 2;
                         Console.Write("  Loading... ");
                         cursorPosition = Console.GetCursorPosition();
@@ -121,12 +120,13 @@ namespace Monke
                         for (int i = 0; i < words.Length; i++) if (i < words.Length - 1) words[i] += " ";
                         WriteCentered("█============█ Type this text! █====================================================================█");
                         string borders = "█                                                                                                   █";
-                        WriteCentered(borders, newLine: false);
-                        bool[] newLineFlags = WrapText(words, borders);
-                        Console.WriteLine();
+                        WriteCentered(borders);
+                        bool[] newLineFlags = WrapText(words);
                         WriteCentered(borders);
                         WriteCentered("█===================================================================================================█");
                         Console.WriteLine();
+                        Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2;
+                        Console.Write("Output: ");
                         // The following code is for how the game proper screen works, including live tracking of user
                         // input. The text box displayed also acts as a progress bar; the displayed text becomes colored
                         // progressively as the user input correctly matches the text.
@@ -135,8 +135,6 @@ namespace Monke
                         time.Start();
                         for (int i = 0; i < words.Length; i++)
                         {
-                            Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2;
-                            Console.Write("Output: ");
                             string inputWord = "";
                             while (inputWord != words[i])
                             {
@@ -171,7 +169,7 @@ namespace Monke
                                     inputWord = inputWord.Remove(inputWord.Length - 1, 1);
                                 }
                             }
-                            Console.Write(new string('\b', inputWord.Length) + new string(' ', inputWord.Length));
+                            Console.Write(new string('\b', inputWord.Length) + new string(' ', inputWord.Length) + new string('\b', inputWord.Length));
                             if (i < words.Length - 1)
                             {
                                 if (newLineFlags[i + 1])
@@ -186,7 +184,6 @@ namespace Monke
                         game.wpm = (int)(words.Length / (time.ElapsedMilliseconds / 60000.0));
                         Console.Clear();
                         WriteCentered(Art.wpmScoreHeader, artColor);
-                        Console.WriteLine();
                         Console.CursorLeft = (Console.WindowWidth - lineLength) / 2;
                         Console.Write("  WPM: ");
                         Console.WriteLine(game.wpm);
@@ -195,11 +192,10 @@ namespace Monke
                         Console.WriteLine();
                         WriteCentered("█============█ Bonus question! █====================================================================█");
                         Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2;
-                        Console.Write(borders);
+                        Console.WriteLine(borders);
                         string[] questionWords = game.quizQuestion.Split(' ');
                         for (int i = 0; i < questionWords.Length; i++) if (i < questionWords.Length - 1) questionWords[i] += " ";
-                        WrapText(questionWords, borders);
-                        Console.WriteLine();
+                        WrapText(questionWords);
                         WriteCentered(borders);
                         string[] choiceButtons = new string[4] { " (Press A)", " (Press B)", " (Press C)", " (Press D)" };
                         for (int i = 0; i < 4; i++)
@@ -273,9 +269,9 @@ namespace Monke
                         for (int i = 0; i < games.Count; i++)
                         {
                             string space = games[i].subject.Length >= 8 ? "\t\t" : "\t\t\t";
-                            string quiz = games[i].result == 1 ? "Correct" : "Wrong";
+                            string quizResult = games[i].result == 1 ? "Correct" : "Wrong";
                             Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2;
-                            Console.WriteLine(i + 1 + "\t\t" + games[i].subject + space + games[i].difficulty + "\t\t\t" + games[i].wpm + "\t\t" + quiz);
+                            Console.WriteLine(i + 1 + "\t\t" + games[i].subject + space + games[i].difficulty + "\t\t\t" + games[i].wpm + "\t\t" + quizResult);
                         }
                     }
                     Console.WriteLine();
@@ -288,11 +284,9 @@ namespace Monke
             Console.Clear();
         }
         // This is for centering strings in the console, even accounting for multiple lines of text within a
-        // single string. The variable 'newLine' is for determining whether the cursor should move to the next
-        // line after finishing writing the entire string, or if it should stay in place on the current line.
-        // The function also returns the character length of the last line, which is useful only for a specific
-        // part of the code.
-        static int WriteCentered(string str, ConsoleColor color = ConsoleColor.White, bool newLine = true)
+        // single string. The function also returns the character length of the last line, which is useful
+        // only for a specific part of the code.
+        static int WriteCentered(string str, ConsoleColor color = ConsoleColor.White)
         {
             StringReader reader = new(str);
             string line = "";
@@ -301,8 +295,7 @@ namespace Monke
             {
                 line = reader.ReadLine();
                 Console.CursorLeft = (Console.WindowWidth - line.Length) / 2;
-                Console.Write(line);
-                if (reader.Peek() != -1 || newLine) Console.WriteLine();
+                Console.WriteLine(line);
             }
             Console.ForegroundColor = ConsoleColor.White;
             return line.Length;
@@ -310,21 +303,24 @@ namespace Monke
         // This is for wrapping long text strings within the visible text box of the game proper UI. Notice that
         // it returns an array of boolean values. Each word in the sample text is assigned a flag in this boolean
         // array, which indicates whether or not it is the beginning of a new line.
-        static bool[] WrapText(string[] words, string borders)
+        static bool[] WrapText(string[] words)
         {
             bool[] newLineFlags = new bool[words.Length];
+            string borders = "█                                                                                                   █";
             for (int i = 0; i < words.Length; i++)
             {
-                newLineFlags[i] = false;
-                if (words[i].Length > (Console.WindowWidth + borders.Length) / 2 - Console.CursorLeft - 5)
+                if (i == 0 || words[i].Length > (Console.WindowWidth + borders.Length) / 2 - Console.CursorLeft - 5)
                 {
+                    if (i != 0) Console.WriteLine();
                     newLineFlags[i] = true;
-                    Console.WriteLine();
-                    WriteCentered(borders, newLine: false);
+                    Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2;
+                    Console.Write(borders);
                     Console.CursorLeft = (Console.WindowWidth - borders.Length) / 2 + 5;
                 }
+                else newLineFlags[i] = false;
                 Console.Write(words[i]);
             }
+            Console.WriteLine();
             return newLineFlags;
         }
     }
@@ -559,7 +555,7 @@ namespace Monke
                             ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░                            
           ";
         public const string mainMenu = @"
-            
+          
   █░█░█ █▀▀ █░░ █▀▀ █▀█ █▀▄▀█ █▀▀   ▀█▀ █▀█   ▀█▀ █▄█ █▀█ ▄▄ █▀▀ █▀▄ █                                
   ▀▄▀▄▀ ██▄ █▄▄ █▄▄ █▄█ █░▀░█ ██▄   ░█░ █▄█   ░█░ ░█░ █▀▀ ░░ ██▄ █▄▀ ▄                                
 
@@ -596,7 +592,8 @@ namespace Monke
 █===================================================================================================█";
         public const string getReady = @"
   █▀▀ █▀▀ ▀█▀   █▀█ █▀▀ ▄▀█ █▀▄ █▄█ █                                                                 
-  █▄█ ██▄ ░█░   █▀▄ ██▄ █▀█ █▄▀ ░█░ ▄                                                                 ";
+  █▄█ ██▄ ░█░   █▀▄ ██▄ █▀█ █▄▀ ░█░ ▄                                                                 
+                                                                                                      ";
         public const string filipino = @"
   █▀▀ █ █░░ █ █▀█ █ █▄░█ █▀█                                                                          
   █▀░ █ █▄▄ █ █▀▀ █ █░▀█ █▄█                                                                          ";
@@ -617,21 +614,19 @@ namespace Monke
   █▄▄ █▀█ █▄█ █▄█ ▄█ ██▄   █▀█   █▄▀ █ █▀░ █▀░ █ █▄▄ █▄█ █▄▄ ░█░ ░█░   █▄▄ ██▄ ▀▄▀ ██▄ █▄▄ ▄          ";
         public const string wpmScoreHeader = @"
   █▄█ █▀█ █░█ █▀█   █▀ █▀█ █▀▀ █▀▀ █▀▄   █░█░█ ▄▀█ █▀                                                 
-  ░█░ █▄█ █▄█ █▀▄   ▄█ █▀▀ ██▄ ██▄ █▄▀   ▀▄▀▄▀ █▀█ ▄█ ▄ ▄ ▄                                           ";
+  ░█░ █▄█ █▄█ █▀▄   ▄█ █▀▀ ██▄ ██▄ █▄▀   ▀▄▀▄▀ █▀█ ▄█ ▄ ▄ ▄                                           
+                                                                                                      ";
         public const string quizCorrectHeader = @"
   █▀▀ █▀█ █▄░█ █▀▀ █▀█ ▄▀█ ▀█▀ █░█ █░░ ▄▀█ ▀█▀ █ █▀█ █▄░█ █▀ █                                        
   █▄▄ █▄█ █░▀█ █▄█ █▀▄ █▀█ ░█░ █▄█ █▄▄ █▀█ ░█░ █ █▄█ █░▀█ ▄█ ▄                                        ";
         public const string quizCorrectText = @"
-
   You aced the bonus question! Great job!                                                             ";
         public const string quizWrongHeader = @"
   ▄▀█ █░█░█ █░█░█ █░█░█ █░█░█   ▀ ▄▀                                                                  
   █▀█ ▀▄▀▄▀ ▀▄▀▄▀ ▀▄▀▄▀ ▀▄▀▄▀   ▄ ▀▄                                                                  ";
         public const string quizWrongText = @"
-
   Looks like you didn't get it right this time. That's alright! You can always try again.             ";
         public const string playAgainMenu = @"
-
 █============█ Would you like to play again? █======================================================█
 █                                                                                                   █
 █        █ Yes (Press 1)                                                                            █
